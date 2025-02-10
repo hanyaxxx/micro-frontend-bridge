@@ -1,10 +1,21 @@
 # 微前端桥接组件使用手册
 
+在线演示修改文件后点按小浏览器刷新按钮查看变化
+
+- **react-usage-react-bridge** <br/>在 react 中使用其他版本 react
+
+- **react-usage-vue-bridge** <br/>在 react 中使用 vue 组件
+
+- **vue2-usage-vue3&react-bridge** <br/>在 vue2 项目中使用 vue3 和 react 组件
+
+- **vue3-usage-react-bridge** <br/>在 vue3 项目中使用 vue2 和 react 组件
+
+## [这是什么?](#features)
+
 ## 文件夹说明
 
-- core 核心库
-
-- examples 演示项目 examples 文件夹是具体的示例并且展示了不同项目架构下桥接组件的使用
+- **./core** 核心库
+- **./examples** 演示项目，展示了不同项目架构下桥接组件的使用
 
 ## 指令
 
@@ -27,9 +38,7 @@ npm run dev
 
 ## [在线演示](https://stackblitz.com/~/github.com/hanyaxxx/micro-frontend-bridge?file=package.json)
 
-修改文件后刷新查看及时变化
-
-# 库 api 说明
+# 库 API 说明
 
 ## micro-frontend-bridge/for-react
 
@@ -209,3 +218,11 @@ const Home = bridgeComponent(h)
     <Home />
  </template>
 ```
+
+# 简介
+
+## 特性
+
+## 什么时候使用?
+
+## 可能存在的缺点
