@@ -1,0 +1,24 @@
+{
+  "name": "using-react-bridge-in-vue3",
+  "version": "1.0.0",
+  "description": "[English Version](./README_EN.md)",
+  "main": "index.js",
+  "dependencies": {
+    "element-plus": "^2.9.1",
+    "vue": "^3.5.13"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite --emptyOutDir build",
+    "preview": "vite preview"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20.12.7",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "@vue/compiler-sfc": "^3.5.13",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.7"
+  }
+}

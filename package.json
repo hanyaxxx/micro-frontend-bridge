@@ -1,0 +1,53 @@
+{
+  "name": "micro-frontend-bridge",
+  "version": "1.0.0",
+  "description": "micro frontend bridge tool for react and vue",
+  "types": "./core/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "for-vue": [
+        "./core/for-vue/index.d.ts"
+      ],
+      "for-react": [
+        "./core/for-react/index.d.ts"
+      ]
+    }
+  },
+  "exports": {
+    ".": null,
+    "./for-vue": "./core/for-vue/index.js",
+    "./for-react": "./core/for-react/index.js"
+  },
+  "files": [
+    "core"
+  ],
+  "scripts": {
+    "build": "concurrently \"npm run e1\" \"npm run e2\" \"npm run e2-d\" \"npm run e2-f\" \"npm run e3\" \"npm run e4\"",
+    "e1": "npm run build --prefix ./examples/react-usage-react-bridge",
+    "e2": "npm run build --prefix ./examples/react-usage-vue-bridge",
+    "e2-d": "npm run build2 --prefix ./examples/react-usage-vue-bridge",
+    "e2-f": "npm run build3 --prefix ./examples/react-usage-vue-bridge",
+    "e3": "npm run build --prefix ./examples/vue2-usage-vue3-react-bridge",
+    "e4": "npm run build --prefix ./examples/vue3-usage-react-bridge"
+  },
+  "dependencies": {
+    "concurrently": "^8.2.1"
+  },
+  "devDependencies": {},
+  "peerDependencies": {},
+  "keywords": [
+    "micro-frontend",
+    "bridge",
+    "react",
+    "vue"
+  ],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/micro-frontend-bridge.git"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

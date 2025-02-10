@@ -1,0 +1,26 @@
+{
+  "name": "vue",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "bridge": "webpack build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@mdi/font": "^7.4.47",
+    "css-loader": "^7.1.2",
+    "less-loader": "^12.2.0",
+    "style-loader": "^4.0.0",
+    "vue": "^2.6.14",
+    "vue-loader": "^15.9.8",
+    "vue-material": "1.0.0-beta-16",
+    "vue-styled-components": "^1.6.0",
+    "vue-template-compiler": "^2.7.16",
+    "webpack": "^5.97.1",
+    "webpack-cli": "^6.0.1"
+  },
+  "description": ""
+}
