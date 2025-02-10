@@ -1,15 +1,34 @@
 # 微前端桥接组件使用手册
 
+## 文件夹说明
+
 - core 核心库
 
 - examples 演示项目 examples 文件夹是具体的示例并且展示了不同项目架构下桥接组件的使用
 
+## 指令
+
+```bash
+# 在线测试
+npm run start
+
+# 在线测试
+npm run build 及时测试
+
+# 根据不同的examples进行测试
+
+cd examples/**
+
+npm install
+
+npm run dev
+
+```
+
 ## 在线演示
 
 -
--
--
--
+- [链接文本](https://example.com)
 
 # 库 api 说明
 

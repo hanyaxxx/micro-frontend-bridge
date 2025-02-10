@@ -22,6 +22,7 @@
     "core"
   ],
   "scripts": {
+    "start": "vite",
     "build": "concurrently \"npm run e1\" \"npm run e2\" \"npm run e2-d\" \"npm run e2-f\" \"npm run e3\" \"npm run e4\"",
     "e1": "npm run build --prefix ./examples/react-usage-react-bridge",
     "e2": "npm run build --prefix ./examples/react-usage-vue-bridge",
@@ -31,10 +32,9 @@
     "e4": "npm run build --prefix ./examples/vue3-usage-react-bridge"
   },
   "dependencies": {
-    "concurrently": "^8.2.1"
+    "concurrently": "^8.2.1",
+    "vite": "^6.1.0"
   },
-  "devDependencies": {},
-  "peerDependencies": {},
   "keywords": [
     "micro-frontend",
     "bridge",
