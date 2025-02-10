@@ -1,5 +1,9 @@
 # 微前端桥接组件使用手册
 
+## [这是什么?](#features)
+
+## [在线演示](https://stackblitz.com/~/github.com/hanyaxxx/micro-frontend-bridge?file=package.json)
+
 在线演示修改文件后点按小浏览器刷新按钮查看变化
 
 - **react-usage-react-bridge** <br/>在 react 中使用其他版本 react
@@ -9,8 +13,6 @@
 - **vue2-usage-vue3&react-bridge** <br/>在 vue2 项目中使用 vue3 和 react 组件
 
 - **vue3-usage-react-bridge** <br/>在 vue3 项目中使用 vue2 和 react 组件
-
-## [这是什么?](#features)
 
 ## 文件夹说明
 
@@ -35,8 +37,6 @@ npm install
 npm run dev
 
 ```
-
-## [在线演示](https://stackblitz.com/~/github.com/hanyaxxx/micro-frontend-bridge?file=package.json)
 
 # 库 API 说明
 
@@ -154,7 +154,7 @@ vue 作为主应用用这个库
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { h } from 'vue'
-import { createReactBridge } from '@micro-frontend-bridge/core'
+import { createReactBridge } from '@micro-frontend-bridge/for-vue'
 import { App } from './reactApp.tsx'
 
 // create vue3 accessor
@@ -175,6 +175,7 @@ const Vue2Component = v2reactBridge()(App)
 ```js 创建vue桥接组件在不同的vue项目中使用
 import vue2 from 'vue'
 import Vue2Home from '../vue2/home/home.vue'
+import { createVue2Bridge } from '@micro-frontend-bridge/for-vue
 
 // create bridge accessor
 const vue2Accessor = createVue2Bridge(vue2)
@@ -198,7 +199,7 @@ const Home = bridgeComponent(h)
 ```js
  import {createApp, h } from 'vue'
  import Vue3Home from '../vue3/home/home.vue'
-
+import { createVue3Bridge } from '@micro-frontend-bridge/for-vue
  // create bridge accessor
  const vue3Accessor = createVue3Bridge({ createApp, h }, (app)=>{
   // do something

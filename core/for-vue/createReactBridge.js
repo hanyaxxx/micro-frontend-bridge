@@ -13,7 +13,7 @@ import { generateRandomString } from '../utils'
  * import React from 'react'
  * import ReactDOM from 'react-dom'
  * import { h } from 'vue'
- * import { createReactBridge } from '@micro-frontend-bridge/core'
+ * import { createReactBridge } from '@micro-frontend-bridge/for-vue'
  * import { App } from './reactApp.tsx'
  *
  * // create vue3 accessor
