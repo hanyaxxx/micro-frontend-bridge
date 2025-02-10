@@ -22,8 +22,7 @@
     "core"
   ],
   "scripts": {
-    "start": "vite",
-    "build": "concurrently \"npm run e1\" \"npm run e2\" \"npm run e2-d\" \"npm run e2-f\" \"npm run e3\" \"npm run e4\"",
+    "start": "concurrently \"vite\" \"npm run e1\" \"npm run e2\" \"npm run e2-d\" \"npm run e2-f\" \"npm run e3\" \"npm run e4\"",
     "e1": "npm run build --prefix ./examples/react-usage-react-bridge",
     "e2": "npm run build --prefix ./examples/react-usage-vue-bridge",
     "e2-d": "npm run build2 --prefix ./examples/react-usage-vue-bridge",

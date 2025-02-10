@@ -25,10 +25,9 @@ npm run dev
 
 ```
 
-## 在线演示
+## [在线演示](https://stackblitz.com/~/github.com/hanyaxxx/micro-frontend-bridge?file=package.json)
 
--
-- [链接文本](https://example.com)
+修改文件后刷新查看及时变化
 
 # 库 api 说明
 

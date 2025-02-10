@@ -138,7 +138,7 @@ module.exports = [
     entry: './src/index3.jsx',
     output: {
       path: path.resolve(__dirname, 'dist'),
-      filename: '[name].bundle.js'
+      filename: '[name].[hash].js'
     },
     module: {
       rules: [

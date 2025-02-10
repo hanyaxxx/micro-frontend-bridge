@@ -10,9 +10,9 @@
     "dev:vue3": "webpack serve --config webpack.config.js --config-name vue3",
     "dev:concurrently-serv": "webpack serve --config webpack.config.js --config-name concurrently",
     "dev:concurrently-lib": "webpack --config webpack.config.js --config-name vue2",
-    "build": "cross-env NODE_ENV=production webpack --output-path ../../dist/e2 --config ./webpack.config.js --config-name concurrently",
-    "build2": "cross-env NODE_ENV=production webpack --output-path ../../dist/e2 --config ./webpack.config.js --config-name vue2",
-    "build3": "cross-env NODE_ENV=production webpack --output-path ../../dist/e2 --config ./webpack.config.js --config-name vue3"
+    "build": "cross-env NODE_ENV=production webpack --output-path ../../dist/e2 --config ./webpack.config.js --config-name concurrently --watch",
+    "build2": "cross-env NODE_ENV=production webpack --output-path ../../dist/e2 --config ./webpack.config.js --config-name vue2 --watch",
+    "build3": "cross-env NODE_ENV=production webpack --output-path ../../dist/e2 --config ./webpack.config.js --config-name vue3 --watch"
   },
   "keywords": [],
   "author": "",
