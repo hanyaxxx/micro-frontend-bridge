@@ -1,6 +1,6 @@
 # 微前端桥接组件使用手册
 
-## [这是什么?](#features)
+## [这是什么?](#简介)
 
 ## [在线演示](https://stackblitz.com/~/github.com/hanyaxxx/micro-frontend-bridge?file=package.json)
 
