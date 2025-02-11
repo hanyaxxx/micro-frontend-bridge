@@ -1,4 +1,4 @@
-import { generateRandomString } from '../utils'
+import { generateRandomString, copy } from '../utils'
 
 /**
  * Creates a bridge to render vue components in React applications.
@@ -54,7 +54,8 @@ function createVueBridge(vue, callback) {
         }
       },
       render(h) {
-        _ref.update = (props) => (this.proxyProps = Object.assign({}, props))
+        // _ref.update = (props) => (this.proxyProps = Object.assign({}, props))
+        _ref.update = (props) => (this.proxyProps = copy(props))
         return vue.h ? vue.h(_ref.connector, this.proxyProps) : h(_ref.connector, { props: this.proxyProps })
       }
     }

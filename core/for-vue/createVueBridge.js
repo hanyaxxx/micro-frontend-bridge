@@ -42,7 +42,8 @@ function createVue2Bridge(vue2, _attr = {}) {
         }
       },
       render(h) {
-        _ref.update = (props) => (this.proxyProps = Object.assign({}, props))
+        // _ref.update = (props) => (this.proxyProps = Object.assign({}, props))
+        _ref.update = (props) => (this.proxyProps = copy(props))
         return h(_ref.connector, { props: this.proxyProps })
       }
     }
@@ -142,7 +143,8 @@ function createVue3Bridge({ createApp, h }, callback) {
         }
       },
       render() {
-        _ref.update = (props) => (this.proxyProps = Object.assign({}, props))
+        // _ref.update = (props) => (this.proxyProps = Object.assign({}, props))
+        _ref.update = (props) => (this.proxyProps = copy(props))
         return h(_ref.connector, this.proxyProps)
       }
     }
@@ -176,6 +178,7 @@ function createVue3Bridge({ createApp, h }, callback) {
       watch: {
         $props: {
           handler(newProps) {
+            // console.log('newProps', newProps)
             _ref.update(newProps.props)
           },
           deep: true
