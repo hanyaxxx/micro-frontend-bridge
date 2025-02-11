@@ -1,6 +1,6 @@
 # 微前端桥接组件使用手册
 
-[English Version](./README_EN.md)
+[English Version](./README_EN.MD)
 
 ## [这是什么?](#简介)
 
