@@ -27,7 +27,6 @@ import { generateRandomString } from '../utils'
     )
   }
  */
-
 function createReactBridge(React, ReactDOM) {
   function R15Render(id, app) {
     return ReactDOM.render(app, document.getElementById(id))

@@ -3,7 +3,8 @@ import { generateRandomString } from '../utils'
 /**
  * Creates a bridge to render React components in Vue applications.
  *
- * @param {createElement, createRoot?, render?} Object - The React library createElement, createRoot | render
+ * @param {createElement, Component,createRoot?, render?} React - The React library createElement, Component
+ * @param {createRoot?, render?} ReactDOM - The ReactDOM library , createRoot | render
  * @returns {Function} returns a bridge accessor
  * @returns {Function} A function that takes a React component and returns a bridge component
  * @returns {Function} h - The Vue3 h function,Because of the difference in vue's rendering mechanism, if vue3 provides an h function, vue2 doesn't
@@ -29,7 +30,7 @@ import { generateRandomString } from '../utils'
  * const Vue2Component = v2reactBridge()(App)
  * ```
  */
-function createReactBridge({ createElement, Component, createRoot, render }) {
+function createReactBridge({ createElement, Component }, { createRoot, render }) {
   function R15Render(id, app) {
     return render(app, document.getElementById(id))
   }

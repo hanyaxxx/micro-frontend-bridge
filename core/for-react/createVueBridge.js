@@ -1,4 +1,4 @@
-import { generateRandomString, copy } from '../utils'
+import { generateRandomString } from '../utils'
 
 /**
  * Creates a bridge to render vue components in React applications.

@@ -1,6 +1,6 @@
 {
   "name": "micro-frontend-bridge",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "micro frontend bridge tool for react and vue",
   "types": "./core/index.d.ts",
   "typesVersions": {
@@ -21,8 +21,8 @@
   "files": [
     "core",
     "examples",
-    "README.md",
-    "README_EN.md"
+    "README.MD",
+    "README_EN.MD"
   ],
   "scripts": {
     "start": "pnpm i && npm run build",
