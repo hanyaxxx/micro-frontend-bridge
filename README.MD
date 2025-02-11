@@ -8,13 +8,21 @@
 
 在线演示修改文件后点按小浏览器刷新按钮查看变化
 
-- **react-usage-react-bridge** <br/>在 react 中使用其他版本 react
+### React examples
 
-- **react-usage-vue-bridge** <br/>在 react 中使用 vue 组件
+react examples 展示了如何把桥接组件统一管理在主应用中
 
-- **vue2-usage-vue3&react-bridge** <br/>在 vue2 项目中使用 vue3 和 react 组件
+- **./react-usage-react-bridge** <br/>在 react 中使用其他版本 react
 
-- **vue3-usage-react-bridge** <br/>在 vue3 项目中使用 vue2 和 react 组件
+- **./react-usage-vue-bridge** <br/>在 react 中使用 vue 组件
+
+### Vue examples
+
+vue examples 展示了如何把桥接组件分散管理在子应用中
+
+- **./vue2-usage-vue3&react-bridge** <br/>在 vue2 项目中使用 vue3 和 react 组件
+
+- **./vue3-usage-react-bridge** <br/>在 vue3 项目中使用 vue2 和 react 组件
 
 ### 安装错误?
 

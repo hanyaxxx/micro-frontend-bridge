@@ -8,13 +8,21 @@
 
 After modifying the file, click the small browser refresh button to see the changes.
 
-- **react-usage-react-bridge** <br/>Using different versions of React in React
+### React Examples
 
-- **react-usage-vue-bridge** <br/>Using Vue components in React
+The React examples demonstrate how to manage bridged components in a unified way within the main application.
 
-- **vue2-usage-vue3&react-bridge** <br/>Using Vue3 and React components in a Vue2 project
+- **./react-usage-react-bridge** <br/>Using a different version of React in a React application
 
-- **vue3-usage-react-bridge** <br/>Using Vue2 and React components in a Vue3 project
+- **./react-usage-vue-bridge** <br/>Using Vue components in a React application
+
+### Vue Examples
+
+The Vue examples demonstrate how to manage bridged components in a decentralized way within sub-applications.
+
+- **./vue2-usage-vue3&react-bridge** <br/>Using Vue 3 and React components in a Vue 2 project
+
+- **./vue3-usage-react-bridge** <br/>Using Vue 2 and React components in a Vue 3 project
 
 ### Installation Issues?
 
