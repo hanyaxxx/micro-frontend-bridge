@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "concurrently  \"npm run dev:concurrently-serv\" ",
+    "dev": "concurrently \"npm run dev:react-bridge\" \"npm run dev:vue-bridge\" \"npm run dev:concurrently-serv\" ",
+    "dev:react-bridge": "npm run bridge --prefix ./children/react",
+    "dev:vue-bridge": "npm run bridge --prefix ./children/vue3",
     "dev:concurrently-serv": "webpack serve --config webpack.config.js --config-name concurrently",
     "build": "webpack --output-path ../../dist/e3 --config ./webpack.config.js --watch"
   },

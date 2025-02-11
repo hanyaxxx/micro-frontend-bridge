@@ -1,5 +1,5 @@
-import { V as g } from "./chunks/Vue3Accesstor.D2o4F8Sn.js";
-import { d as C, r as v, a as r, o as k, c as P, b as a, w as e, e as s, t as n, f as u } from "./chunks/vendor.CwSQNyvo.js";
+import { V as g } from "./chunks/Vue3Accesstor.CK_O4YnS.js";
+import { d as C, r as v, a as r, c as k, o as P, b as a, w as e, e as s, t as n, f as u } from "./chunks/vendor.Cka4DEk7.js";
 const T = (t, o) => {
   const c = t.__vccOpts || t;
   for (const [d, p] of o)
@@ -24,7 +24,7 @@ const T = (t, o) => {
 }), $ = { class: "product-detail" }, b = ["src"];
 function h(t, o, c, d, p, y) {
   const l = r("a-col"), i = r("a-tag"), _ = r("a-button"), m = r("a-row"), f = r("a-card");
-  return k(), P("div", $, [
+  return P(), k("div", $, [
     a(f, null, {
       title: e(() => o[0] || (o[0] = [
         s("span", null, "Product Detail", -1)

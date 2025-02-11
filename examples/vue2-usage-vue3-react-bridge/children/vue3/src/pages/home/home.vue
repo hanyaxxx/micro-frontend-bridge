@@ -1,13 +1,20 @@
 <template>
-  <div :style="{
-    margin: '16px'
-  }">
+  <div
+    :style="{
+      margin: '16px'
+    }">
     username-text : {{ name }}
   </div>
 
   <div>
-    <a-form :model="formState" name="basic" :label-col="{ span: 8 }" :wrapper-col="{ span: 16 }" autocomplete="off"
-      @finish="onFinish" @finishFailed="onFinishFailed">
+    <a-form
+      :model="formState"
+      name="basic"
+      :label-col="{ span: 8 }"
+      :wrapper-col="{ span: 16 }"
+      autocomplete="off"
+      @finish="onFinish"
+      @finishFailed="onFinishFailed">
       <a-form-item label="v2Username" name="username">
         <a-input :value="name" @change="(e) => handleClick({ ...form, name: e.target.value })" />
         <p>This component shows the communication between the Vue3 and Vue2 components</p>
@@ -25,7 +32,9 @@
         <a-input :value="form.description.city" />
       </a-form-item>
 
-      <a-form-item label="v3Password" name="password"
+      <a-form-item
+        label="v3Password"
+        name="password"
         :rules="[{ required: true, message: 'Please input your password!' }]">
         <a-input-password v-model:value="formState.password" />
       </a-form-item>

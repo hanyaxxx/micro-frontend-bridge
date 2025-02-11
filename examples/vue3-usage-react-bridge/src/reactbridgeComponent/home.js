@@ -1,7 +1,6 @@
-import { A as x } from "./chunks/ReactAccesstor.B6f5DuQv.js";
-import { j as e, B as m, T as o, P as p, G as s, c as i } from "./chunks/vendor.uudGgrvy.js";
-import { h as j } from "vue";
-const g = ({ form: a, name: l, changeVue3Form: d }) => {
+import { A as x } from "./chunks/ReactAccesstor.DqJGYPmK.js";
+import { j as e, B as m, T as o, P as p, G as s, c as i } from "./chunks/vendor.CGBBQ0Oh.js";
+const j = ({ form: a, name: l, changeVue3Form: d }) => {
   const n = (t, c) => {
     const r = { ...a };
     if (t.includes(".")) {
@@ -50,7 +49,7 @@ const g = ({ form: a, name: l, changeVue3Form: d }) => {
       ) })
     ] }) })
   ] });
-}, y = x(g)(j);
+}, C = x(j);
 export {
-  y as default
+  C as default
 };

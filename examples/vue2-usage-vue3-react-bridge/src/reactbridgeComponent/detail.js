@@ -1,5 +1,5 @@
-import { A as o } from "./chunks/ReactAccesstor.D4l3hjEP.js";
-import { j as r, B as s, C as c, G as e, T as a, a as d, b as n } from "./chunks/vendor.DM6UOjDm.js";
+import { A as o } from "./chunks/ReactAccesstor.D8dJxVBA.js";
+import { j as r, B as s, C as c, G as e, T as a, a as d, b as n } from "./chunks/vendor.CGBBQ0Oh.js";
 const l = () => {
   const t = {
     name: "Sample Product",
@@ -43,7 +43,7 @@ const l = () => {
       ) })
     ] })
   ] }) }) }) });
-}, m = o(l)();
+}, m = o(l);
 export {
   m as default
 };

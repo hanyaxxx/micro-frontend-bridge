@@ -8,7 +8,9 @@
     "vue": "^3.5.13"
   },
   "scripts": {
-    "dev": "vite",
+    "dev": "concurrently \"npm run dev:react-bridge\" \"npm run dev:vue-bridge\" \"vite\" ",
+    "dev:react-bridge": "npm run bridge --prefix ./children/react",
+    "dev:vue-bridge": "npm run bridge --prefix ./children/vue2",
     "build": "vite --emptyOutDir --watch build",
     "preview": "vite preview"
   },
@@ -19,6 +21,7 @@
     "@vitejs/plugin-vue": "^5.2.1",
     "@vue/compiler-sfc": "^3.5.13",
     "typescript": "^5.7.2",
-    "vite": "^6.0.7"
+    "vite": "^6.0.7",
+    "concurrently": "^8.2.1"
   }
 }

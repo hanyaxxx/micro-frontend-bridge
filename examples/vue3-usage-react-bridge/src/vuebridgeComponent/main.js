@@ -1,5 +1,424 @@
 /******/ var __webpack_modules__ = ({
 
+/***/ "../../../../core/for-vue/createReactBridge.js":
+/*!*****************************************************!*\
+  !*** ../../../../core/for-vue/createReactBridge.js ***!
+  \*****************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../utils */ "../../../../core/utils.js");
+
+
+/**
+ * Creates a bridge to render React components in Vue applications.
+ *
+ * @param {createElement, Component,createRoot?, render?} React - The React library createElement, Component
+ * @param {createRoot?, render?} ReactDOM - The ReactDOM library , createRoot | render
+ * @returns {Function} returns a bridge accessor
+ * @returns {Function} A function that takes a React component and returns a bridge component
+ * @returns {Function} h - The Vue3 h function,Because of the difference in vue's rendering mechanism, if vue3 provides an h function, vue2 doesn't
+ *
+ * @example
+ * ```js
+ * import React from 'react'
+ * import ReactDOM from 'react-dom'
+ * import { h } from 'vue'
+ * import { createReactBridge } from '@micro-frontend-bridge/for-vue'
+ * import { App } from './reactApp.tsx'
+ *
+ * // create vue3 accessor
+ * const v3reactAccessor = createReactBridge(React, ReactDOM)
+ *
+ * // create vue2 accessor
+ * const v2reactAccessor = createReactBridge(React, ReactDOM)
+ *
+ * //bridge react app to vue3
+ * const Vue3Component = v3reactBridge(h)(App)
+ *
+ * //bridge react app to vue2
+ * const Vue2Component = v2reactBridge()(App)
+ * ```
+ */
+function createReactBridge({ createElement, Component }, { createRoot, render }) {
+  function R15Render(id, app) {
+    return render(app, document.getElementById(id))
+  }
+
+  function R18Render(id, app) {
+    const root = createRoot(document.getElementById(id))
+    root.render(app)
+    return root
+  }
+
+  const _render = createRoot ? R18Render : R15Render
+
+  class AccessorConnect extends Component {
+    constructor(props) {
+      super(props)
+      this.state = {}
+    }
+    render() {
+      const { _ref } = this.props
+      _ref.update = () => this.setState(() => ({}))
+      const connector = _ref.connector
+      return createElement(connector, _ref._props)
+    }
+  }
+
+  return (_h) => {
+    function accessor(component) {
+      const _ref = { connector: component, _props: null }
+      const elementId = (0,_utils__WEBPACK_IMPORTED_MODULE_0__.generateRandomString)(10)
+      return {
+        name: 'Accessor',
+        props: ['component', 'props'],
+        mounted() {
+          // _ref.connector = this.$props.component
+          _ref._props = this.$props.props
+          const root = _render(elementId, createElement(AccessorConnect, { _ref }))
+          _ref.root = root
+        },
+        beforeUnmount() {
+          _ref.root.unmount()
+        },
+        beforeDestroy() {
+          _ref.root.unmount()
+        },
+        watch: {
+          $props: {
+            handler(newProps) {
+              _ref._props = newProps.props
+              _ref.update()
+            },
+            deep: true
+          }
+        },
+        render(h) {
+          return _h ? _h('div', { id: elementId }) : h('div', { attrs: { id: elementId } })
+        }
+      }
+    }
+    return accessor
+  }
+}
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (createReactBridge);
+
+
+/***/ }),
+
+/***/ "../../../../core/for-vue/createVueBridge.js":
+/*!***************************************************!*\
+  !*** ../../../../core/for-vue/createVueBridge.js ***!
+  \***************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   createVue2Bridge: () => (/* binding */ createVue2Bridge),
+/* harmony export */   createVue3Bridge: () => (/* binding */ createVue3Bridge)
+/* harmony export */ });
+/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../utils */ "../../../../core/utils.js");
+
+
+/**
+ *
+ * Creates a bridge to render vue2 components in Vue3 applications.
+ *
+ * @param vue2 {Object} The vue2
+ * @param _attr {Object} The attributes of the vue2 app
+ * @returns {Function} returns a bridge accessor
+ * @returns {Function} A function that takes a vue2 component and returns a bridge component
+ * @returns {Function} h - The Vue3 h function
+ * @example
+ *
+ * // in vue2 project
+ * import vue2 from 'vue'
+ * import Vue2Home from '../vue2/home/home.vue'
+ *
+ * // create bridge accessor
+ * const vue2Accessor = createVue2Bridge(vue2)
+ * // create bridge component
+ * const bridgeComponent = (h)=> vue2Accessor(Vue2Home)(h)
+ *
+ * //in vue3 project
+ * import { h } from 'vue'
+ * import bridgeComponent from 'children-app/accesstor/Home'
+ * //get bridge component
+ * const Home = bridgeComponent(h)
+ *
+ * <template>
+ *    <Home />
+ * </template>
+ *
+ */
+function createVue2Bridge(vue2, _attr = {}) {
+  function vueAccessorConnect(_ref) {
+    const { _props } = _ref
+    return {
+      name: 'vueAccessorConnect',
+      data() {
+        return {
+          proxyProps: Object.assign({}, _props)
+        }
+      },
+      render(h) {
+        _ref.update = (props) => (this.proxyProps = Object.assign({}, props))
+        return h(_ref.connector, { props: this.proxyProps })
+      }
+    }
+  }
+
+  function vue2Render(id, _ref) {
+    // const _attr = callback ?? {}
+
+    const root = new vue2({
+      ..._attr,
+      render: (h) => h(vueAccessorConnect(_ref))
+    })
+
+    root.$mount(document.getElementById(id))
+    root.unmount = root.$destroy
+    return root
+  }
+
+  function vueAccessor(connector) {
+    return (h, attr = {}) => {
+      const _ref = { connector: connector, _props: null }
+      const elementId = (0,_utils__WEBPACK_IMPORTED_MODULE_0__.generateRandomString)(10)
+      return {
+        name: 'vueAccessor',
+        props: ['props'],
+        mounted() {
+          _ref._props = this.$props.props
+          const root = vue2Render(elementId, _ref)
+          // console.log('sss', elementId)
+          _ref.root = root
+        },
+        beforeUnmount() {
+          _ref.root.unmount()
+        },
+        beforeDestroy() {
+          _ref.root.unmount()
+        },
+        watch: {
+          $props: {
+            handler(newProps) {
+              _ref.update(newProps.props)
+            },
+            deep: true
+          }
+        },
+        render() {
+          return h('div', { ...attr, id: elementId })
+        }
+      }
+    }
+  }
+
+  return vueAccessor
+}
+
+/**
+ *
+ * Creates a bridge to render vue3 components in Vue2 applications.
+ *
+ * @param vue3 {Object} The vue3
+ * @param callback {Function}
+ * @returns {Function} returns a bridge accessor
+ * @returns {Function} A function that takes a vue3 component and returns a bridge component
+ * @example
+ *
+ * // in vue3 project
+ * import {createApp, h } from 'vue'
+ * import Vue3Home from '../vue3/home/home.vue'
+ *
+ * // create bridge accessor
+ * const vue3Accessor = createVue3Bridge({ createApp, h }, (app)=>{
+ *  // do something
+ * })
+ *
+ * // create bridge component
+ * const HOME = vue3Accessor(Vue3Home)
+ *
+ * //in vue2 project
+ * import HOME from 'children-app/accesstor/Home'
+ *
+ * export default {
+ *   components:HOME
+ * }
+ *
+ * <template>
+ *    <Home />
+ * </template>
+ */
+function createVue3Bridge({ createApp, h }, callback) {
+  function vueAccessorConnect(_ref) {
+    const { _props } = _ref
+    return {
+      name: 'vueAccessorConnect',
+      data() {
+        return {
+          proxyProps: Object.assign({}, _props)
+        }
+      },
+      render() {
+        _ref.update = (props) => (this.proxyProps = Object.assign({}, props))
+        return h(_ref.connector, this.proxyProps)
+      }
+    }
+  }
+
+  function createRoot(id, _ref) {
+    const app = createApp(vueAccessorConnect(_ref))
+    callback?.(app)
+    app.mount(document.getElementById(id))
+    return app
+  }
+
+  function vueAccessor(connector) {
+    const _ref = { connector: connector, _props: null }
+    const elementId = (0,_utils__WEBPACK_IMPORTED_MODULE_0__.generateRandomString)(10)
+
+    return {
+      name: 'vueAccessor',
+      props: ['props'],
+      mounted() {
+        _ref._props = this.$props.props
+        const root = createRoot(elementId, _ref)
+        _ref.root = root
+      },
+      beforeUnmount() {
+        _ref.root.unmount()
+      },
+      beforeDestroy() {
+        _ref.root.unmount()
+      },
+      watch: {
+        $props: {
+          handler(newProps) {
+            _ref.update(newProps.props)
+          },
+          deep: true
+        }
+      },
+      render(h) {
+        return h('div', { attrs: { id: elementId } })
+      }
+    }
+  }
+
+  return vueAccessor
+}
+
+
+
+
+/***/ }),
+
+/***/ "../../../../core/for-vue/index.js":
+/*!*****************************************!*\
+  !*** ../../../../core/for-vue/index.js ***!
+  \*****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   createReactBridge: () => (/* reexport safe */ _createReactBridge__WEBPACK_IMPORTED_MODULE_0__["default"]),
+/* harmony export */   createVue2Bridge: () => (/* reexport safe */ _createVueBridge__WEBPACK_IMPORTED_MODULE_1__.createVue2Bridge),
+/* harmony export */   createVue3Bridge: () => (/* reexport safe */ _createVueBridge__WEBPACK_IMPORTED_MODULE_1__.createVue3Bridge)
+/* harmony export */ });
+/* harmony import */ var _createReactBridge__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./createReactBridge */ "../../../../core/for-vue/createReactBridge.js");
+/* harmony import */ var _createVueBridge__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./createVueBridge */ "../../../../core/for-vue/createVueBridge.js");
+
+
+
+
+
+/***/ }),
+
+/***/ "../../../../core/utils.js":
+/*!*********************************!*\
+  !*** ../../../../core/utils.js ***!
+  \*********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   copy: () => (/* binding */ copy),
+/* harmony export */   generateRandomString: () => (/* binding */ generateRandomString)
+/* harmony export */ });
+function generateRandomString(length) {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+  let result = ''
+  const charactersLength = characters.length
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength))
+  }
+  return 'element_' + result
+}
+
+function copy(target, map = new WeakMap()) {
+  try {
+    if (typeof target !== 'object' || target === null) {
+      return target
+    }
+
+    if (map.has(target)) {
+      return map.get(target)
+    }
+
+    const result = Array.isArray(target) ? [] : {}
+    map.set(target, result)
+
+    for (const key in target) {
+      if (Object.prototype.hasOwnProperty.call(target, key)) {
+        const value = target[key]
+        result[key] = typeof value === 'function' ? value : copy(value, map)
+      }
+    }
+
+    return result
+  } catch (error) {
+    console.error('An error occurred with a deep copy and was rolled back', target)
+    console.error(error)
+    return target
+  }
+}
+
+
+/***/ }),
+
+/***/ "./VueAccesstor.js":
+/*!*************************!*\
+  !*** ./VueAccesstor.js ***!
+  \*************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! vue */ "../../../../node_modules/.pnpm/vue@2.7.16/node_modules/vue/dist/vue.runtime.esm.js");
+/* harmony import */ var _core_for_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../../core/for-vue */ "../../../../core/for-vue/index.js");
+/* harmony import */ var vue_material__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! vue-material */ "../../../../node_modules/.pnpm/vue-material@1.0.0-beta-16_encoding@0.1.13_vue@2.7.16/node_modules/vue-material/dist/vue-material.js");
+/* harmony import */ var vue_material__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(vue_material__WEBPACK_IMPORTED_MODULE_1__);
+
+
+
+
+vue__WEBPACK_IMPORTED_MODULE_2__["default"].use((vue_material__WEBPACK_IMPORTED_MODULE_1___default()))
+const VueAccesstor = (0,_core_for_vue__WEBPACK_IMPORTED_MODULE_0__.createVue2Bridge)(vue__WEBPACK_IMPORTED_MODULE_2__["default"])
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (VueAccesstor);
+
+
+/***/ }),
+
 /***/ "./src/pages/home/home.vue":
 /*!*********************************!*\
   !*** ./src/pages/home/home.vue ***!
@@ -12,7 +431,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _home_vue_vue_type_template_id_087d42bb__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./home.vue?vue&type=template&id=087d42bb */ "./src/pages/home/home.vue?vue&type=template&id=087d42bb");
 /* harmony import */ var _home_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./home.vue?vue&type=script&lang=js */ "./src/pages/home/home.vue?vue&type=script&lang=js");
-/* harmony import */ var _node_modules_pnpm_vue_loader_15_11_1_vue_compiler_sfc_3_5_13_css_loader_7_1_2_rspack_core_0_7_5_webpack_5_97_dbiy5o32r2dobpfreiao2n5xj4_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! !../../../../../../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_@rspack+core@0.7.5_webpack@5.97._dbiy5o32r2dobpfreiao2n5xj4/node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "../../../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_@rspack+core@0.7.5_webpack@5.97._dbiy5o32r2dobpfreiao2n5xj4/node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+/* harmony import */ var _node_modules_pnpm_vue_loader_15_11_1_vue_compiler_sfc_3_5_13_css_loader_7_1_2_webpack_5_97_1_webpack_cli_6_0_1_vnnev3wxzczgzqlp5twrtohyw4_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! !../../../../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_webpack@5.97.1_webpack-cli@6.0.1_vnnev3wxzczgzqlp5twrtohyw4/node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_webpack@5.97.1_webpack-cli@6.0.1_vnnev3wxzczgzqlp5twrtohyw4/node_modules/vue-loader/lib/runtime/componentNormalizer.js");
 
 
 
@@ -20,7 +439,7 @@ __webpack_require__.r(__webpack_exports__);
 
 /* normalize component */
 ;
-var component = (0,_node_modules_pnpm_vue_loader_15_11_1_vue_compiler_sfc_3_5_13_css_loader_7_1_2_rspack_core_0_7_5_webpack_5_97_dbiy5o32r2dobpfreiao2n5xj4_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
+var component = (0,_node_modules_pnpm_vue_loader_15_11_1_vue_compiler_sfc_3_5_13_css_loader_7_1_2_webpack_5_97_1_webpack_cli_6_0_1_vnnev3wxzczgzqlp5twrtohyw4_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
   _home_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"],
   _home_vue_vue_type_template_id_087d42bb__WEBPACK_IMPORTED_MODULE_0__.render,
   _home_vue_vue_type_template_id_087d42bb__WEBPACK_IMPORTED_MODULE_0__.staticRenderFns,
@@ -38,10 +457,10 @@ component.options.__file = "src/pages/home/home.vue"
 
 /***/ }),
 
-/***/ "../../../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_@rspack+core@0.7.5_webpack@5.97._dbiy5o32r2dobpfreiao2n5xj4/node_modules/vue-loader/lib/index.js??vue-loader-options!./src/pages/home/home.vue?vue&type=script&lang=js":
-/*!********************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ../../../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_@rspack+core@0.7.5_webpack@5.97._dbiy5o32r2dobpfreiao2n5xj4/node_modules/vue-loader/lib/index.js??vue-loader-options!./src/pages/home/home.vue?vue&type=script&lang=js ***!
-  \********************************************************************************************************************************************************************************************************************************************************************************/
+/***/ "../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_webpack@5.97.1_webpack-cli@6.0.1_vnnev3wxzczgzqlp5twrtohyw4/node_modules/vue-loader/lib/index.js??vue-loader-options!./src/pages/home/home.vue?vue&type=script&lang=js":
+/*!**************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_webpack@5.97.1_webpack-cli@6.0.1_vnnev3wxzczgzqlp5twrtohyw4/node_modules/vue-loader/lib/index.js??vue-loader-options!./src/pages/home/home.vue?vue&type=script&lang=js ***!
+  \**************************************************************************************************************************************************************************************************************************************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
@@ -96,7 +515,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _productDetail_vue_vue_type_template_id_3e76cdb9__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./productDetail.vue?vue&type=template&id=3e76cdb9 */ "./src/pages/products/productDetail.vue?vue&type=template&id=3e76cdb9");
 /* harmony import */ var _productDetail_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./productDetail.vue?vue&type=script&lang=js */ "./src/pages/products/productDetail.vue?vue&type=script&lang=js");
-/* harmony import */ var _node_modules_pnpm_vue_loader_15_11_1_vue_compiler_sfc_3_5_13_css_loader_7_1_2_rspack_core_0_7_5_webpack_5_97_dbiy5o32r2dobpfreiao2n5xj4_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! !../../../../../../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_@rspack+core@0.7.5_webpack@5.97._dbiy5o32r2dobpfreiao2n5xj4/node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "../../../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_@rspack+core@0.7.5_webpack@5.97._dbiy5o32r2dobpfreiao2n5xj4/node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+/* harmony import */ var _node_modules_pnpm_vue_loader_15_11_1_vue_compiler_sfc_3_5_13_css_loader_7_1_2_webpack_5_97_1_webpack_cli_6_0_1_vnnev3wxzczgzqlp5twrtohyw4_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! !../../../../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_webpack@5.97.1_webpack-cli@6.0.1_vnnev3wxzczgzqlp5twrtohyw4/node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_webpack@5.97.1_webpack-cli@6.0.1_vnnev3wxzczgzqlp5twrtohyw4/node_modules/vue-loader/lib/runtime/componentNormalizer.js");
 
 
 
@@ -104,7 +523,7 @@ __webpack_require__.r(__webpack_exports__);
 
 /* normalize component */
 ;
-var component = (0,_node_modules_pnpm_vue_loader_15_11_1_vue_compiler_sfc_3_5_13_css_loader_7_1_2_rspack_core_0_7_5_webpack_5_97_dbiy5o32r2dobpfreiao2n5xj4_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
+var component = (0,_node_modules_pnpm_vue_loader_15_11_1_vue_compiler_sfc_3_5_13_css_loader_7_1_2_webpack_5_97_1_webpack_cli_6_0_1_vnnev3wxzczgzqlp5twrtohyw4_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
   _productDetail_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"],
   _productDetail_vue_vue_type_template_id_3e76cdb9__WEBPACK_IMPORTED_MODULE_0__.render,
   _productDetail_vue_vue_type_template_id_3e76cdb9__WEBPACK_IMPORTED_MODULE_0__.staticRenderFns,
@@ -122,10 +541,10 @@ component.options.__file = "src/pages/products/productDetail.vue"
 
 /***/ }),
 
-/***/ "../../../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_@rspack+core@0.7.5_webpack@5.97._dbiy5o32r2dobpfreiao2n5xj4/node_modules/vue-loader/lib/index.js??vue-loader-options!./src/pages/products/productDetail.vue?vue&type=script&lang=js":
-/*!*********************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ../../../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_@rspack+core@0.7.5_webpack@5.97._dbiy5o32r2dobpfreiao2n5xj4/node_modules/vue-loader/lib/index.js??vue-loader-options!./src/pages/products/productDetail.vue?vue&type=script&lang=js ***!
-  \*********************************************************************************************************************************************************************************************************************************************************************************************/
+/***/ "../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_webpack@5.97.1_webpack-cli@6.0.1_vnnev3wxzczgzqlp5twrtohyw4/node_modules/vue-loader/lib/index.js??vue-loader-options!./src/pages/products/productDetail.vue?vue&type=script&lang=js":
+/*!***************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_webpack@5.97.1_webpack-cli@6.0.1_vnnev3wxzczgzqlp5twrtohyw4/node_modules/vue-loader/lib/index.js??vue-loader-options!./src/pages/products/productDetail.vue?vue&type=script&lang=js ***!
+  \***************************************************************************************************************************************************************************************************************************************************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
@@ -164,8 +583,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _node_modules_pnpm_vue_loader_15_11_1_vue_compiler_sfc_3_5_13_css_loader_7_1_2_rspack_core_0_7_5_webpack_5_97_dbiy5o32r2dobpfreiao2n5xj4_node_modules_vue_loader_lib_index_js_vue_loader_options_home_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_@rspack+core@0.7.5_webpack@5.97._dbiy5o32r2dobpfreiao2n5xj4/node_modules/vue-loader/lib/index.js??vue-loader-options!./home.vue?vue&type=script&lang=js */ "../../../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_@rspack+core@0.7.5_webpack@5.97._dbiy5o32r2dobpfreiao2n5xj4/node_modules/vue-loader/lib/index.js??vue-loader-options!./src/pages/home/home.vue?vue&type=script&lang=js");
- /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (_node_modules_pnpm_vue_loader_15_11_1_vue_compiler_sfc_3_5_13_css_loader_7_1_2_rspack_core_0_7_5_webpack_5_97_dbiy5o32r2dobpfreiao2n5xj4_node_modules_vue_loader_lib_index_js_vue_loader_options_home_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_0__["default"]); 
+/* harmony import */ var _node_modules_pnpm_vue_loader_15_11_1_vue_compiler_sfc_3_5_13_css_loader_7_1_2_webpack_5_97_1_webpack_cli_6_0_1_vnnev3wxzczgzqlp5twrtohyw4_node_modules_vue_loader_lib_index_js_vue_loader_options_home_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_webpack@5.97.1_webpack-cli@6.0.1_vnnev3wxzczgzqlp5twrtohyw4/node_modules/vue-loader/lib/index.js??vue-loader-options!./home.vue?vue&type=script&lang=js */ "../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_webpack@5.97.1_webpack-cli@6.0.1_vnnev3wxzczgzqlp5twrtohyw4/node_modules/vue-loader/lib/index.js??vue-loader-options!./src/pages/home/home.vue?vue&type=script&lang=js");
+ /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (_node_modules_pnpm_vue_loader_15_11_1_vue_compiler_sfc_3_5_13_css_loader_7_1_2_webpack_5_97_1_webpack_cli_6_0_1_vnnev3wxzczgzqlp5twrtohyw4_node_modules_vue_loader_lib_index_js_vue_loader_options_home_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_0__["default"]); 
 
 /***/ }),
 
@@ -179,8 +598,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _node_modules_pnpm_vue_loader_15_11_1_vue_compiler_sfc_3_5_13_css_loader_7_1_2_rspack_core_0_7_5_webpack_5_97_dbiy5o32r2dobpfreiao2n5xj4_node_modules_vue_loader_lib_index_js_vue_loader_options_productDetail_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_@rspack+core@0.7.5_webpack@5.97._dbiy5o32r2dobpfreiao2n5xj4/node_modules/vue-loader/lib/index.js??vue-loader-options!./productDetail.vue?vue&type=script&lang=js */ "../../../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_@rspack+core@0.7.5_webpack@5.97._dbiy5o32r2dobpfreiao2n5xj4/node_modules/vue-loader/lib/index.js??vue-loader-options!./src/pages/products/productDetail.vue?vue&type=script&lang=js");
- /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (_node_modules_pnpm_vue_loader_15_11_1_vue_compiler_sfc_3_5_13_css_loader_7_1_2_rspack_core_0_7_5_webpack_5_97_dbiy5o32r2dobpfreiao2n5xj4_node_modules_vue_loader_lib_index_js_vue_loader_options_productDetail_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_0__["default"]); 
+/* harmony import */ var _node_modules_pnpm_vue_loader_15_11_1_vue_compiler_sfc_3_5_13_css_loader_7_1_2_webpack_5_97_1_webpack_cli_6_0_1_vnnev3wxzczgzqlp5twrtohyw4_node_modules_vue_loader_lib_index_js_vue_loader_options_productDetail_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_webpack@5.97.1_webpack-cli@6.0.1_vnnev3wxzczgzqlp5twrtohyw4/node_modules/vue-loader/lib/index.js??vue-loader-options!./productDetail.vue?vue&type=script&lang=js */ "../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_webpack@5.97.1_webpack-cli@6.0.1_vnnev3wxzczgzqlp5twrtohyw4/node_modules/vue-loader/lib/index.js??vue-loader-options!./src/pages/products/productDetail.vue?vue&type=script&lang=js");
+ /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (_node_modules_pnpm_vue_loader_15_11_1_vue_compiler_sfc_3_5_13_css_loader_7_1_2_webpack_5_97_1_webpack_cli_6_0_1_vnnev3wxzczgzqlp5twrtohyw4_node_modules_vue_loader_lib_index_js_vue_loader_options_productDetail_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_0__["default"]); 
 
 /***/ }),
 
@@ -192,10 +611,10 @@ __webpack_require__.r(__webpack_exports__);
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   render: () => (/* reexport safe */ _node_modules_pnpm_vue_loader_15_11_1_vue_compiler_sfc_3_5_13_css_loader_7_1_2_rspack_core_0_7_5_webpack_5_97_dbiy5o32r2dobpfreiao2n5xj4_node_modules_vue_loader_lib_loaders_templateLoader_js_ruleSet_1_rules_1_node_modules_pnpm_vue_loader_15_11_1_vue_compiler_sfc_3_5_13_css_loader_7_1_2_rspack_core_0_7_5_webpack_5_97_dbiy5o32r2dobpfreiao2n5xj4_node_modules_vue_loader_lib_index_js_vue_loader_options_home_vue_vue_type_template_id_087d42bb__WEBPACK_IMPORTED_MODULE_0__.render),
-/* harmony export */   staticRenderFns: () => (/* reexport safe */ _node_modules_pnpm_vue_loader_15_11_1_vue_compiler_sfc_3_5_13_css_loader_7_1_2_rspack_core_0_7_5_webpack_5_97_dbiy5o32r2dobpfreiao2n5xj4_node_modules_vue_loader_lib_loaders_templateLoader_js_ruleSet_1_rules_1_node_modules_pnpm_vue_loader_15_11_1_vue_compiler_sfc_3_5_13_css_loader_7_1_2_rspack_core_0_7_5_webpack_5_97_dbiy5o32r2dobpfreiao2n5xj4_node_modules_vue_loader_lib_index_js_vue_loader_options_home_vue_vue_type_template_id_087d42bb__WEBPACK_IMPORTED_MODULE_0__.staticRenderFns)
+/* harmony export */   render: () => (/* reexport safe */ _node_modules_pnpm_vue_loader_15_11_1_vue_compiler_sfc_3_5_13_css_loader_7_1_2_webpack_5_97_1_webpack_cli_6_0_1_vnnev3wxzczgzqlp5twrtohyw4_node_modules_vue_loader_lib_loaders_templateLoader_js_ruleSet_1_rules_1_node_modules_pnpm_vue_loader_15_11_1_vue_compiler_sfc_3_5_13_css_loader_7_1_2_webpack_5_97_1_webpack_cli_6_0_1_vnnev3wxzczgzqlp5twrtohyw4_node_modules_vue_loader_lib_index_js_vue_loader_options_home_vue_vue_type_template_id_087d42bb__WEBPACK_IMPORTED_MODULE_0__.render),
+/* harmony export */   staticRenderFns: () => (/* reexport safe */ _node_modules_pnpm_vue_loader_15_11_1_vue_compiler_sfc_3_5_13_css_loader_7_1_2_webpack_5_97_1_webpack_cli_6_0_1_vnnev3wxzczgzqlp5twrtohyw4_node_modules_vue_loader_lib_loaders_templateLoader_js_ruleSet_1_rules_1_node_modules_pnpm_vue_loader_15_11_1_vue_compiler_sfc_3_5_13_css_loader_7_1_2_webpack_5_97_1_webpack_cli_6_0_1_vnnev3wxzczgzqlp5twrtohyw4_node_modules_vue_loader_lib_index_js_vue_loader_options_home_vue_vue_type_template_id_087d42bb__WEBPACK_IMPORTED_MODULE_0__.staticRenderFns)
 /* harmony export */ });
-/* harmony import */ var _node_modules_pnpm_vue_loader_15_11_1_vue_compiler_sfc_3_5_13_css_loader_7_1_2_rspack_core_0_7_5_webpack_5_97_dbiy5o32r2dobpfreiao2n5xj4_node_modules_vue_loader_lib_loaders_templateLoader_js_ruleSet_1_rules_1_node_modules_pnpm_vue_loader_15_11_1_vue_compiler_sfc_3_5_13_css_loader_7_1_2_rspack_core_0_7_5_webpack_5_97_dbiy5o32r2dobpfreiao2n5xj4_node_modules_vue_loader_lib_index_js_vue_loader_options_home_vue_vue_type_template_id_087d42bb__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_@rspack+core@0.7.5_webpack@5.97._dbiy5o32r2dobpfreiao2n5xj4/node_modules/vue-loader/lib/loaders/templateLoader.js??ruleSet[1].rules[1]!../../../../../../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_@rspack+core@0.7.5_webpack@5.97._dbiy5o32r2dobpfreiao2n5xj4/node_modules/vue-loader/lib/index.js??vue-loader-options!./home.vue?vue&type=template&id=087d42bb */ "../../../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_@rspack+core@0.7.5_webpack@5.97._dbiy5o32r2dobpfreiao2n5xj4/node_modules/vue-loader/lib/loaders/templateLoader.js??ruleSet[1].rules[1]!../../../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_@rspack+core@0.7.5_webpack@5.97._dbiy5o32r2dobpfreiao2n5xj4/node_modules/vue-loader/lib/index.js??vue-loader-options!./src/pages/home/home.vue?vue&type=template&id=087d42bb");
+/* harmony import */ var _node_modules_pnpm_vue_loader_15_11_1_vue_compiler_sfc_3_5_13_css_loader_7_1_2_webpack_5_97_1_webpack_cli_6_0_1_vnnev3wxzczgzqlp5twrtohyw4_node_modules_vue_loader_lib_loaders_templateLoader_js_ruleSet_1_rules_1_node_modules_pnpm_vue_loader_15_11_1_vue_compiler_sfc_3_5_13_css_loader_7_1_2_webpack_5_97_1_webpack_cli_6_0_1_vnnev3wxzczgzqlp5twrtohyw4_node_modules_vue_loader_lib_index_js_vue_loader_options_home_vue_vue_type_template_id_087d42bb__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_webpack@5.97.1_webpack-cli@6.0.1_vnnev3wxzczgzqlp5twrtohyw4/node_modules/vue-loader/lib/loaders/templateLoader.js??ruleSet[1].rules[1]!../../../../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_webpack@5.97.1_webpack-cli@6.0.1_vnnev3wxzczgzqlp5twrtohyw4/node_modules/vue-loader/lib/index.js??vue-loader-options!./home.vue?vue&type=template&id=087d42bb */ "../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_webpack@5.97.1_webpack-cli@6.0.1_vnnev3wxzczgzqlp5twrtohyw4/node_modules/vue-loader/lib/loaders/templateLoader.js??ruleSet[1].rules[1]!../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_webpack@5.97.1_webpack-cli@6.0.1_vnnev3wxzczgzqlp5twrtohyw4/node_modules/vue-loader/lib/index.js??vue-loader-options!./src/pages/home/home.vue?vue&type=template&id=087d42bb");
 
 
 /***/ }),
@@ -208,18 +627,18 @@ __webpack_require__.r(__webpack_exports__);
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   render: () => (/* reexport safe */ _node_modules_pnpm_vue_loader_15_11_1_vue_compiler_sfc_3_5_13_css_loader_7_1_2_rspack_core_0_7_5_webpack_5_97_dbiy5o32r2dobpfreiao2n5xj4_node_modules_vue_loader_lib_loaders_templateLoader_js_ruleSet_1_rules_1_node_modules_pnpm_vue_loader_15_11_1_vue_compiler_sfc_3_5_13_css_loader_7_1_2_rspack_core_0_7_5_webpack_5_97_dbiy5o32r2dobpfreiao2n5xj4_node_modules_vue_loader_lib_index_js_vue_loader_options_productDetail_vue_vue_type_template_id_3e76cdb9__WEBPACK_IMPORTED_MODULE_0__.render),
-/* harmony export */   staticRenderFns: () => (/* reexport safe */ _node_modules_pnpm_vue_loader_15_11_1_vue_compiler_sfc_3_5_13_css_loader_7_1_2_rspack_core_0_7_5_webpack_5_97_dbiy5o32r2dobpfreiao2n5xj4_node_modules_vue_loader_lib_loaders_templateLoader_js_ruleSet_1_rules_1_node_modules_pnpm_vue_loader_15_11_1_vue_compiler_sfc_3_5_13_css_loader_7_1_2_rspack_core_0_7_5_webpack_5_97_dbiy5o32r2dobpfreiao2n5xj4_node_modules_vue_loader_lib_index_js_vue_loader_options_productDetail_vue_vue_type_template_id_3e76cdb9__WEBPACK_IMPORTED_MODULE_0__.staticRenderFns)
+/* harmony export */   render: () => (/* reexport safe */ _node_modules_pnpm_vue_loader_15_11_1_vue_compiler_sfc_3_5_13_css_loader_7_1_2_webpack_5_97_1_webpack_cli_6_0_1_vnnev3wxzczgzqlp5twrtohyw4_node_modules_vue_loader_lib_loaders_templateLoader_js_ruleSet_1_rules_1_node_modules_pnpm_vue_loader_15_11_1_vue_compiler_sfc_3_5_13_css_loader_7_1_2_webpack_5_97_1_webpack_cli_6_0_1_vnnev3wxzczgzqlp5twrtohyw4_node_modules_vue_loader_lib_index_js_vue_loader_options_productDetail_vue_vue_type_template_id_3e76cdb9__WEBPACK_IMPORTED_MODULE_0__.render),
+/* harmony export */   staticRenderFns: () => (/* reexport safe */ _node_modules_pnpm_vue_loader_15_11_1_vue_compiler_sfc_3_5_13_css_loader_7_1_2_webpack_5_97_1_webpack_cli_6_0_1_vnnev3wxzczgzqlp5twrtohyw4_node_modules_vue_loader_lib_loaders_templateLoader_js_ruleSet_1_rules_1_node_modules_pnpm_vue_loader_15_11_1_vue_compiler_sfc_3_5_13_css_loader_7_1_2_webpack_5_97_1_webpack_cli_6_0_1_vnnev3wxzczgzqlp5twrtohyw4_node_modules_vue_loader_lib_index_js_vue_loader_options_productDetail_vue_vue_type_template_id_3e76cdb9__WEBPACK_IMPORTED_MODULE_0__.staticRenderFns)
 /* harmony export */ });
-/* harmony import */ var _node_modules_pnpm_vue_loader_15_11_1_vue_compiler_sfc_3_5_13_css_loader_7_1_2_rspack_core_0_7_5_webpack_5_97_dbiy5o32r2dobpfreiao2n5xj4_node_modules_vue_loader_lib_loaders_templateLoader_js_ruleSet_1_rules_1_node_modules_pnpm_vue_loader_15_11_1_vue_compiler_sfc_3_5_13_css_loader_7_1_2_rspack_core_0_7_5_webpack_5_97_dbiy5o32r2dobpfreiao2n5xj4_node_modules_vue_loader_lib_index_js_vue_loader_options_productDetail_vue_vue_type_template_id_3e76cdb9__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_@rspack+core@0.7.5_webpack@5.97._dbiy5o32r2dobpfreiao2n5xj4/node_modules/vue-loader/lib/loaders/templateLoader.js??ruleSet[1].rules[1]!../../../../../../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_@rspack+core@0.7.5_webpack@5.97._dbiy5o32r2dobpfreiao2n5xj4/node_modules/vue-loader/lib/index.js??vue-loader-options!./productDetail.vue?vue&type=template&id=3e76cdb9 */ "../../../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_@rspack+core@0.7.5_webpack@5.97._dbiy5o32r2dobpfreiao2n5xj4/node_modules/vue-loader/lib/loaders/templateLoader.js??ruleSet[1].rules[1]!../../../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_@rspack+core@0.7.5_webpack@5.97._dbiy5o32r2dobpfreiao2n5xj4/node_modules/vue-loader/lib/index.js??vue-loader-options!./src/pages/products/productDetail.vue?vue&type=template&id=3e76cdb9");
+/* harmony import */ var _node_modules_pnpm_vue_loader_15_11_1_vue_compiler_sfc_3_5_13_css_loader_7_1_2_webpack_5_97_1_webpack_cli_6_0_1_vnnev3wxzczgzqlp5twrtohyw4_node_modules_vue_loader_lib_loaders_templateLoader_js_ruleSet_1_rules_1_node_modules_pnpm_vue_loader_15_11_1_vue_compiler_sfc_3_5_13_css_loader_7_1_2_webpack_5_97_1_webpack_cli_6_0_1_vnnev3wxzczgzqlp5twrtohyw4_node_modules_vue_loader_lib_index_js_vue_loader_options_productDetail_vue_vue_type_template_id_3e76cdb9__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_webpack@5.97.1_webpack-cli@6.0.1_vnnev3wxzczgzqlp5twrtohyw4/node_modules/vue-loader/lib/loaders/templateLoader.js??ruleSet[1].rules[1]!../../../../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_webpack@5.97.1_webpack-cli@6.0.1_vnnev3wxzczgzqlp5twrtohyw4/node_modules/vue-loader/lib/index.js??vue-loader-options!./productDetail.vue?vue&type=template&id=3e76cdb9 */ "../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_webpack@5.97.1_webpack-cli@6.0.1_vnnev3wxzczgzqlp5twrtohyw4/node_modules/vue-loader/lib/loaders/templateLoader.js??ruleSet[1].rules[1]!../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_webpack@5.97.1_webpack-cli@6.0.1_vnnev3wxzczgzqlp5twrtohyw4/node_modules/vue-loader/lib/index.js??vue-loader-options!./src/pages/products/productDetail.vue?vue&type=template&id=3e76cdb9");
 
 
 /***/ }),
 
-/***/ "../../../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_@rspack+core@0.7.5_webpack@5.97._dbiy5o32r2dobpfreiao2n5xj4/node_modules/vue-loader/lib/loaders/templateLoader.js??ruleSet[1].rules[1]!../../../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_@rspack+core@0.7.5_webpack@5.97._dbiy5o32r2dobpfreiao2n5xj4/node_modules/vue-loader/lib/index.js??vue-loader-options!./src/pages/home/home.vue?vue&type=template&id=087d42bb":
-/*!*******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ../../../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_@rspack+core@0.7.5_webpack@5.97._dbiy5o32r2dobpfreiao2n5xj4/node_modules/vue-loader/lib/loaders/templateLoader.js??ruleSet[1].rules[1]!../../../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_@rspack+core@0.7.5_webpack@5.97._dbiy5o32r2dobpfreiao2n5xj4/node_modules/vue-loader/lib/index.js??vue-loader-options!./src/pages/home/home.vue?vue&type=template&id=087d42bb ***!
-  \*******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/***/ "../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_webpack@5.97.1_webpack-cli@6.0.1_vnnev3wxzczgzqlp5twrtohyw4/node_modules/vue-loader/lib/loaders/templateLoader.js??ruleSet[1].rules[1]!../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_webpack@5.97.1_webpack-cli@6.0.1_vnnev3wxzczgzqlp5twrtohyw4/node_modules/vue-loader/lib/index.js??vue-loader-options!./src/pages/home/home.vue?vue&type=template&id=087d42bb":
+/*!*******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_webpack@5.97.1_webpack-cli@6.0.1_vnnev3wxzczgzqlp5twrtohyw4/node_modules/vue-loader/lib/loaders/templateLoader.js??ruleSet[1].rules[1]!../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_webpack@5.97.1_webpack-cli@6.0.1_vnnev3wxzczgzqlp5twrtohyw4/node_modules/vue-loader/lib/index.js??vue-loader-options!./src/pages/home/home.vue?vue&type=template&id=087d42bb ***!
+  \*******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
@@ -319,10 +738,10 @@ render._withStripped = true
 
 /***/ }),
 
-/***/ "../../../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_@rspack+core@0.7.5_webpack@5.97._dbiy5o32r2dobpfreiao2n5xj4/node_modules/vue-loader/lib/loaders/templateLoader.js??ruleSet[1].rules[1]!../../../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_@rspack+core@0.7.5_webpack@5.97._dbiy5o32r2dobpfreiao2n5xj4/node_modules/vue-loader/lib/index.js??vue-loader-options!./src/pages/products/productDetail.vue?vue&type=template&id=3e76cdb9":
-/*!********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ../../../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_@rspack+core@0.7.5_webpack@5.97._dbiy5o32r2dobpfreiao2n5xj4/node_modules/vue-loader/lib/loaders/templateLoader.js??ruleSet[1].rules[1]!../../../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_@rspack+core@0.7.5_webpack@5.97._dbiy5o32r2dobpfreiao2n5xj4/node_modules/vue-loader/lib/index.js??vue-loader-options!./src/pages/products/productDetail.vue?vue&type=template&id=3e76cdb9 ***!
-  \********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/***/ "../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_webpack@5.97.1_webpack-cli@6.0.1_vnnev3wxzczgzqlp5twrtohyw4/node_modules/vue-loader/lib/loaders/templateLoader.js??ruleSet[1].rules[1]!../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_webpack@5.97.1_webpack-cli@6.0.1_vnnev3wxzczgzqlp5twrtohyw4/node_modules/vue-loader/lib/index.js??vue-loader-options!./src/pages/products/productDetail.vue?vue&type=template&id=3e76cdb9":
+/*!********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_webpack@5.97.1_webpack-cli@6.0.1_vnnev3wxzczgzqlp5twrtohyw4/node_modules/vue-loader/lib/loaders/templateLoader.js??ruleSet[1].rules[1]!../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_webpack@5.97.1_webpack-cli@6.0.1_vnnev3wxzczgzqlp5twrtohyw4/node_modules/vue-loader/lib/index.js??vue-loader-options!./src/pages/products/productDetail.vue?vue&type=template&id=3e76cdb9 ***!
+  \********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
@@ -401,10 +820,10 @@ render._withStripped = true
 
 /***/ }),
 
-/***/ "../../../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_@rspack+core@0.7.5_webpack@5.97._dbiy5o32r2dobpfreiao2n5xj4/node_modules/vue-loader/lib/runtime/componentNormalizer.js":
-/*!********************************************************************************************************************************************************************************************************************************!*\
-  !*** ../../../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_@rspack+core@0.7.5_webpack@5.97._dbiy5o32r2dobpfreiao2n5xj4/node_modules/vue-loader/lib/runtime/componentNormalizer.js ***!
-  \********************************************************************************************************************************************************************************************************************************/
+/***/ "../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_webpack@5.97.1_webpack-cli@6.0.1_vnnev3wxzczgzqlp5twrtohyw4/node_modules/vue-loader/lib/runtime/componentNormalizer.js":
+/*!**************************************************************************************************************************************************************************************************************************!*\
+  !*** ../../../../node_modules/.pnpm/vue-loader@15.11.1_@vue+compiler-sfc@3.5.13_css-loader@7.1.2_webpack@5.97.1_webpack-cli@6.0.1_vnnev3wxzczgzqlp5twrtohyw4/node_modules/vue-loader/lib/runtime/componentNormalizer.js ***!
+  \**************************************************************************************************************************************************************************************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
@@ -511,10 +930,10 @@ function normalizeComponent(
 
 /***/ }),
 
-/***/ "../../../../../../node_modules/.pnpm/vue-material@1.0.0-beta-16_encoding@0.1.13_vue@2.7.16/node_modules/vue-material/dist/vue-material.js":
-/*!*************************************************************************************************************************************************!*\
-  !*** ../../../../../../node_modules/.pnpm/vue-material@1.0.0-beta-16_encoding@0.1.13_vue@2.7.16/node_modules/vue-material/dist/vue-material.js ***!
-  \*************************************************************************************************************************************************/
+/***/ "../../../../node_modules/.pnpm/vue-material@1.0.0-beta-16_encoding@0.1.13_vue@2.7.16/node_modules/vue-material/dist/vue-material.js":
+/*!*******************************************************************************************************************************************!*\
+  !*** ../../../../node_modules/.pnpm/vue-material@1.0.0-beta-16_encoding@0.1.13_vue@2.7.16/node_modules/vue-material/dist/vue-material.js ***!
+  \*******************************************************************************************************************************************/
 /***/ (function(module, __unused_webpack_exports, __webpack_require__) {
 
 /*!
@@ -524,7 +943,7 @@ function normalizeComponent(
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(true)
-		module.exports = factory(__webpack_require__(/*! vue */ "../../../../../../node_modules/.pnpm/vue@2.7.16/node_modules/vue/dist/vue.runtime.common.js"));
+		module.exports = factory(__webpack_require__(/*! vue */ "../../../../node_modules/.pnpm/vue@2.7.16/node_modules/vue/dist/vue.runtime.common.js"));
 	else {}
 })(typeof self !== 'undefined' ? self : this, function(__WEBPACK_EXTERNAL_MODULE_9__) {
 return /******/ (function(modules) { // webpackBootstrap
@@ -35741,10 +36160,10 @@ if (false) {}
 
 /***/ }),
 
-/***/ "../../../../../../node_modules/.pnpm/vue@2.7.16/node_modules/vue/dist/vue.runtime.common.dev.js":
-/*!*******************************************************************************************************!*\
-  !*** ../../../../../../node_modules/.pnpm/vue@2.7.16/node_modules/vue/dist/vue.runtime.common.dev.js ***!
-  \*******************************************************************************************************/
+/***/ "../../../../node_modules/.pnpm/vue@2.7.16/node_modules/vue/dist/vue.runtime.common.dev.js":
+/*!*************************************************************************************************!*\
+  !*** ../../../../node_modules/.pnpm/vue@2.7.16/node_modules/vue/dist/vue.runtime.common.dev.js ***!
+  \*************************************************************************************************/
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 /*!
@@ -44487,23 +44906,23 @@ module.exports = Vue;
 
 /***/ }),
 
-/***/ "../../../../../../node_modules/.pnpm/vue@2.7.16/node_modules/vue/dist/vue.runtime.common.js":
-/*!***************************************************************************************************!*\
-  !*** ../../../../../../node_modules/.pnpm/vue@2.7.16/node_modules/vue/dist/vue.runtime.common.js ***!
-  \***************************************************************************************************/
+/***/ "../../../../node_modules/.pnpm/vue@2.7.16/node_modules/vue/dist/vue.runtime.common.js":
+/*!*********************************************************************************************!*\
+  !*** ../../../../node_modules/.pnpm/vue@2.7.16/node_modules/vue/dist/vue.runtime.common.js ***!
+  \*********************************************************************************************/
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 if (false) {} else {
-  module.exports = __webpack_require__(/*! ./vue.runtime.common.dev.js */ "../../../../../../node_modules/.pnpm/vue@2.7.16/node_modules/vue/dist/vue.runtime.common.dev.js")
+  module.exports = __webpack_require__(/*! ./vue.runtime.common.dev.js */ "../../../../node_modules/.pnpm/vue@2.7.16/node_modules/vue/dist/vue.runtime.common.dev.js")
 }
 
 
 /***/ }),
 
-/***/ "../../../../../../node_modules/.pnpm/vue@2.7.16/node_modules/vue/dist/vue.runtime.esm.js":
-/*!************************************************************************************************!*\
-  !*** ../../../../../../node_modules/.pnpm/vue@2.7.16/node_modules/vue/dist/vue.runtime.esm.js ***!
-  \************************************************************************************************/
+/***/ "../../../../node_modules/.pnpm/vue@2.7.16/node_modules/vue/dist/vue.runtime.esm.js":
+/*!******************************************************************************************!*\
+  !*** ../../../../node_modules/.pnpm/vue@2.7.16/node_modules/vue/dist/vue.runtime.esm.js ***!
+  \******************************************************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
@@ -53365,419 +53784,6 @@ if (inBrowser) {
 }
 
 
-
-
-/***/ }),
-
-/***/ "../../../../core/for-vue/createReactBridge.js":
-/*!*****************************************************!*\
-  !*** ../../../../core/for-vue/createReactBridge.js ***!
-  \*****************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../utils */ "../../../../core/utils.js");
-
-
-/**
- * Creates a bridge to render React components in Vue applications.
- *
- * @param {createElement, createRoot?, render?} Object - The React library createElement, createRoot | render
- * @returns {Function} returns a bridge accessor
- * @returns {Function} A function that takes a React component and returns a bridge component
- * @returns {Function} h - The Vue3 h function,Because of the difference in vue's rendering mechanism, if vue3 provides an h function, vue2 doesn't
- *
- * @example
- * ```js
- * import React from 'react'
- * import ReactDOM from 'react-dom'
- * import { h } from 'vue'
- * import { createReactBridge } from '@micro-frontend-bridge/core'
- * import { App } from './reactApp.tsx'
- *
- * // create vue3 accessor
- * const v3reactAccessor = createReactBridge(React, ReactDOM)
- *
- * // create vue2 accessor
- * const v2reactAccessor = createReactBridge(React, ReactDOM)
- *
- * //bridge react app to vue3
- * const Vue3Component = v3reactBridge(App)(h)
- *
- * //bridge react app to vue2
- * const Vue2Component = v2reactBridge(App)()
- * ```
- */
-function createReactBridge({ createElement, Component, createRoot, render }) {
-  function R15Render(id, app) {
-    return render(app, document.getElementById(id))
-  }
-
-  function R18Render(id, app) {
-    const root = createRoot(document.getElementById(id))
-    root.render(app)
-    return root
-  }
-
-  const _render = createRoot ? R18Render : R15Render
-
-  class AccessorConnect extends Component {
-    constructor(props) {
-      super(props)
-      this.state = {}
-    }
-    render() {
-      const { _ref } = this.props
-      _ref.update = () => this.setState(() => ({}))
-      const connector = _ref.connector
-      return createElement(connector, _ref._props)
-    }
-  }
-
-  return (component) => {
-    function accessor(_h) {
-      const _ref = { connector: component, _props: null }
-      const elementId = (0,_utils__WEBPACK_IMPORTED_MODULE_0__.generateRandomString)(10)
-      return {
-        name: 'Accessor',
-        props: ['component', 'props'],
-        mounted() {
-          // _ref.connector = this.$props.component
-          _ref._props = this.$props.props
-          const root = _render(elementId, createElement(AccessorConnect, { _ref }))
-          _ref.root = root
-        },
-        beforeUnmount() {
-          _ref.root.unmount()
-        },
-        beforeDestroy() {
-          _ref.root.unmount()
-        },
-        watch: {
-          $props: {
-            handler(newProps) {
-              _ref._props = newProps.props
-              _ref.update()
-            },
-            deep: true
-          }
-        },
-        render(h) {
-          return _h ? _h('div', { id: elementId }) : h('div', { attrs: { id: elementId } })
-        }
-      }
-    }
-    return accessor
-  }
-}
-
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (createReactBridge);
-
-
-/***/ }),
-
-/***/ "../../../../core/for-vue/createVueBridge.js":
-/*!***************************************************!*\
-  !*** ../../../../core/for-vue/createVueBridge.js ***!
-  \***************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   createVue2Bridge: () => (/* binding */ createVue2Bridge),
-/* harmony export */   createVue3Bridge: () => (/* binding */ createVue3Bridge)
-/* harmony export */ });
-/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../utils */ "../../../../core/utils.js");
-
-
-/**
- *
- * Creates a bridge to render vue2 components in Vue3 applications.
- *
- * @param vue2 {Object} The vue2
- * @param _attr {Object} The attributes of the vue2 app
- * @returns {Function} returns a bridge accessor
- * @returns {Function} A function that takes a vue2 component and returns a bridge component
- * @returns {Function} h - The Vue3 h function
- * @example
- *
- * // in vue2 project
- * import vue2 from 'vue'
- * import Vue2Home from '../vue2/home/home.vue'
- *
- * // create bridge accessor
- * const vue2Accessor = createVue2Bridge(vue2, {})
- * // create bridge component
- * const bridgeComponent = vue2Accessor(Vue2Home)
- *
- * //in vue3 project
- * import { h } from 'vue'
- *
- * //get bridge component
- * const Home = bridgeComponent(h)
- *
- * <Home />
- */
-function createVue2Bridge(vue2, _attr = {}) {
-  function vueAccessorConnect(_ref) {
-    const { _props } = _ref
-    return {
-      name: 'vueAccessorConnect',
-      data() {
-        return {
-          proxyProps: Object.assign({}, _props)
-        }
-      },
-      render(h) {
-        _ref.update = (props) => (this.proxyProps = Object.assign({}, props))
-        return h(_ref.connector, { props: this.proxyProps })
-      }
-    }
-  }
-
-  function vue2Render(id, _ref) {
-    // const _attr = callback ?? {}
-
-    const root = new vue2({
-      ..._attr,
-      render: (h) => h(vueAccessorConnect(_ref))
-    })
-
-    root.$mount(document.getElementById(id))
-    root.unmount = root.$destroy
-    return root
-  }
-
-  function vueAccessor(connector, attr = {}) {
-    const _ref = { connector: connector, _props: null }
-    const elementId = (0,_utils__WEBPACK_IMPORTED_MODULE_0__.generateRandomString)(10)
-
-    return (h) => ({
-      name: 'vueAccessor',
-      props: ['props'],
-      mounted() {
-        _ref._props = this.$props.props
-        const root = vue2Render(elementId, _ref)
-        // console.log('sss', elementId)
-        _ref.root = root
-      },
-      beforeUnmount() {
-        _ref.root.unmount()
-      },
-      beforeDestroy() {
-        _ref.root.unmount()
-      },
-      watch: {
-        $props: {
-          handler(newProps) {
-            _ref.update(newProps.props)
-          },
-          deep: true
-        }
-      },
-      render() {
-        return h('div', { id: elementId })
-      }
-    })
-  }
-
-  return vueAccessor
-}
-
-/**
- *
- * Creates a bridge to render vue3 components in Vue2 applications.
- *
- * @param vue3 {Object} The vue2
- * @param callback {Function}
- * @returns {Function} returns a bridge accessor
- * @returns {Function} A function that takes a vue3 component and returns a bridge component
- * @example
- *
- * // in vue3 project
- * import {createApp, h } from 'vue'
- * import Vue3Home from '../vue3/home/home.vue'
- *
- * // create bridge accessor
- * const vue3Accessor = createVue3Bridge({ createApp, h }, (app)=>{
- *  // do something
- * })
- *
- * // create bridge component
- * const bridgeComponent = vue3Accessor(Vue3Home)
- *
- * //in vue2 project
- *
- * //get bridge component
- * const Home = bridgeComponent
- *
- * export default {
- *   components:Home
- * }
- * <Home />
- */
-function createVue3Bridge({ createApp, h }, callback) {
-  function vueAccessorConnect(_ref) {
-    const { _props } = _ref
-    return {
-      name: 'vueAccessorConnect',
-      data() {
-        return {
-          proxyProps: Object.assign({}, _props)
-        }
-      },
-      render() {
-        _ref.update = (props) => (this.proxyProps = Object.assign({}, props))
-        return h(_ref.connector, this.proxyProps)
-      }
-    }
-  }
-
-  function createRoot(id, _ref) {
-    const app = createApp(vueAccessorConnect(_ref))
-    callback?.(app)
-    app.mount(document.getElementById(id))
-    return app
-  }
-
-  function vueAccessor(connector) {
-    const _ref = { connector: connector, _props: null }
-    const elementId = (0,_utils__WEBPACK_IMPORTED_MODULE_0__.generateRandomString)(10)
-
-    return {
-      name: 'vueAccessor',
-      props: ['props'],
-      mounted() {
-        _ref._props = this.$props.props
-        const root = createRoot(elementId, _ref)
-        _ref.root = root
-      },
-      beforeUnmount() {
-        _ref.root.unmount()
-      },
-      beforeDestroy() {
-        _ref.root.unmount()
-      },
-      watch: {
-        $props: {
-          handler(newProps) {
-            _ref.update(newProps.props)
-          },
-          deep: true
-        }
-      },
-      render() {
-        return h('div', { id: elementId })
-      }
-    }
-  }
-
-  return vueAccessor
-}
-
-
-
-
-/***/ }),
-
-/***/ "../../../../core/for-vue/index.js":
-/*!*****************************************!*\
-  !*** ../../../../core/for-vue/index.js ***!
-  \*****************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   createReactBridge: () => (/* reexport safe */ _createReactBridge__WEBPACK_IMPORTED_MODULE_0__["default"]),
-/* harmony export */   createVue2Bridge: () => (/* reexport safe */ _createVueBridge__WEBPACK_IMPORTED_MODULE_1__.createVue2Bridge),
-/* harmony export */   createVue3Bridge: () => (/* reexport safe */ _createVueBridge__WEBPACK_IMPORTED_MODULE_1__.createVue3Bridge)
-/* harmony export */ });
-/* harmony import */ var _createReactBridge__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./createReactBridge */ "../../../../core/for-vue/createReactBridge.js");
-/* harmony import */ var _createVueBridge__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./createVueBridge */ "../../../../core/for-vue/createVueBridge.js");
-
-
-
-
-
-/***/ }),
-
-/***/ "../../../../core/utils.js":
-/*!*********************************!*\
-  !*** ../../../../core/utils.js ***!
-  \*********************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   copy: () => (/* binding */ copy),
-/* harmony export */   generateRandomString: () => (/* binding */ generateRandomString)
-/* harmony export */ });
-function generateRandomString(length) {
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-  let result = ''
-  const charactersLength = characters.length
-  for (let i = 0; i < length; i++) {
-    result += characters.charAt(Math.floor(Math.random() * charactersLength))
-  }
-  return 'element_' + result
-}
-
-function copy(target, map = new WeakMap()) {
-  try {
-    if (typeof target !== 'object' || target === null) {
-      return target
-    }
-
-    if (map.has(target)) {
-      return map.get(target)
-    }
-
-    const result = Array.isArray(target) ? [] : {}
-    map.set(target, result)
-
-    for (const key in target) {
-      if (Object.prototype.hasOwnProperty.call(target, key)) {
-        const value = target[key]
-        result[key] = typeof value === 'function' ? value : copy(value, map)
-      }
-    }
-
-    return result
-  } catch (error) {
-    console.error('An error occurred with a deep copy and was rolled back', target)
-    console.error(error)
-    return target
-  }
-}
-
-
-/***/ }),
-
-/***/ "./VueAccesstor.js":
-/*!*************************!*\
-  !*** ./VueAccesstor.js ***!
-  \*************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-/* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! vue */ "../../../../../../node_modules/.pnpm/vue@2.7.16/node_modules/vue/dist/vue.runtime.esm.js");
-/* harmony import */ var _core_for_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../../core/for-vue */ "../../../../core/for-vue/index.js");
-/* harmony import */ var vue_material__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! vue-material */ "../../../../../../node_modules/.pnpm/vue-material@1.0.0-beta-16_encoding@0.1.13_vue@2.7.16/node_modules/vue-material/dist/vue-material.js");
-/* harmony import */ var vue_material__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(vue_material__WEBPACK_IMPORTED_MODULE_1__);
-
-
-
-
-vue__WEBPACK_IMPORTED_MODULE_2__["default"].use((vue_material__WEBPACK_IMPORTED_MODULE_1___default()))
-const VueAccesstor = (0,_core_for_vue__WEBPACK_IMPORTED_MODULE_0__.createVue2Bridge)(vue__WEBPACK_IMPORTED_MODULE_2__["default"])
-
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (VueAccesstor);
 
 
 /***/ })

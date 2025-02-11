@@ -1,5 +1,5 @@
-import { V as F } from "./chunks/Vue3Accesstor.D2o4F8Sn.js";
-import { r as g, a as l, o as y, c as V, F as k, e as i, t as x, b as e, w as o, f as d } from "./chunks/vendor.CwSQNyvo.js";
+import { V as F } from "./chunks/Vue3Accesstor.CK_O4YnS.js";
+import { r as g, a as l, c as y, o as V, F as k, e as i, t as x, b as e, w as o, f as d } from "./chunks/vendor.Cka4DEk7.js";
 const C = { style: {
   margin: "16px"
 } }, S = {
@@ -19,7 +19,7 @@ const C = { style: {
     };
     return (s, a) => {
       const u = l("a-input"), t = l("a-form-item"), b = l("a-input-password"), w = l("a-checkbox"), _ = l("a-button"), h = l("a-form");
-      return y(), V(k, null, [
+      return V(), y(k, null, [
         i("div", C, " username-text : " + x(n.name), 1),
         i("div", null, [
           e(h, {

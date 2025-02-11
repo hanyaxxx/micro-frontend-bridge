@@ -1,7 +1,6 @@
-import { A as o } from "./chunks/ReactAccesstor.B6f5DuQv.js";
-import { j as r, B as s, C as c, G as e, T as a, a as d, b as n } from "./chunks/vendor.uudGgrvy.js";
-import { h as l } from "vue";
-const p = () => {
+import { A as o } from "./chunks/ReactAccesstor.DqJGYPmK.js";
+import { j as r, B as s, C as c, G as e, T as a, a as d, b as n } from "./chunks/vendor.CGBBQ0Oh.js";
+const l = () => {
   const t = {
     name: "Sample Product",
     description: "This is a sample product description.",
@@ -44,7 +43,7 @@ const p = () => {
       ) })
     ] })
   ] }) }) }) });
-}, u = o(p)(l);
+}, m = o(l);
 export {
-  u as default
+  m as default
 };

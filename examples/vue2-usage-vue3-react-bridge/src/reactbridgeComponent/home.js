@@ -1,5 +1,5 @@
-import { A as x } from "./chunks/ReactAccesstor.D4l3hjEP.js";
-import { j as e, B as m, T as o, P as p, G as s, c as i } from "./chunks/vendor.DM6UOjDm.js";
+import { A as x } from "./chunks/ReactAccesstor.D8dJxVBA.js";
+import { j as e, B as m, T as o, P as p, G as s, c as i } from "./chunks/vendor.CGBBQ0Oh.js";
 const j = ({ form: a, name: l, changeVueForm: d }) => {
   const n = (t, c) => {
     const r = { ...a };
@@ -49,7 +49,7 @@ const j = ({ form: a, name: l, changeVueForm: d }) => {
       ) })
     ] }) })
   ] });
-}, C = x(j)();
+}, C = x(j);
 export {
   C as default
 };
