@@ -42,6 +42,7 @@
   "keywords": [
     "micro-frontend",
     "bridge",
+    "micro-frontend-bridge",
     "react",
     "vue"
   ],
