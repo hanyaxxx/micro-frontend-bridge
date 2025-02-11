@@ -1,6 +1,6 @@
 # Micro-Frontend Bridge Component User Manual
 
-[中文](./README.md)
+[中文](./README.MD)
 
 ## [What is this?](#introduction)
 
