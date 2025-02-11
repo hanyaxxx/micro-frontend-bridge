@@ -286,7 +286,7 @@ Having tried different solutions, we found compatibility issues or heavy project
 
 ## Possible drawbacks
 
-1. Only supports React and Vue (limited resources at the moment).
+1. Only supports React and Vue now.
 2. Style name conflicts may occur when using different versions of UI libraries in the same project.
 
 ## Core Principles

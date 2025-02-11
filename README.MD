@@ -288,7 +288,7 @@ import { createVue3Bridge } from '@micro-frontend-bridge/for-vue'
 
 ## 可能存在的缺点
 
-1. 只支持 react 和 vue (目前精力有限)
+1. 暂支持 react 和 vue
 
 2. 不同版本号的 ui 库在同一个项目可能会存在样式名同名的问题
 
