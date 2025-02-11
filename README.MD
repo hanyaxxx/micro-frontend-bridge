@@ -1,5 +1,7 @@
 # 微前端桥接组件使用手册
 
+[English Version](./README_EN.md)
+
 ## [这是什么?](#简介)
 
 ## [在线演示](https://stackblitz.com/~/github.com/hanyaxxx/micro-frontend-bridge?file=package.json)
@@ -97,7 +99,7 @@ import Button from './Button.vue'
 //假设子应用是一个vue2的项目
 //为vue2创建一个桥接访问器
 const accesstor = createVueBridge(vue)
-//访问器是一个高阶函数,用来链接react 15 button按钮
+//访问器是一个高阶函数,用来链接 button按钮
 export default accesstor(Button)
 
 // main app(file 2)
@@ -127,7 +129,7 @@ import Button from './Button.vue'
 //假设子应用是一个vue3的项目
 //为vue3创建一个桥接访问器
 const accesstor = createVueBridge(vue, (app) => app.use(/**/))
-//访问器是一个高阶函数,用来链接react 15 button按钮
+//访问器是一个高阶函数,用来链接 button按钮
 export default accesstor(Button)
 
 // main app(file 2)
@@ -227,6 +229,10 @@ import { createVue3Bridge } from '@micro-frontend-bridge/for-vue'
     <Home />
  </template>
 ```
+
+## 如何优化?
+
+一般来说微前端接入项目可能会导致包体积过大的问题, 由于本身是基于高阶函数实现的,使用动态 import 和 suspense 就可以实现按需加载了
 
 # 简介
 
