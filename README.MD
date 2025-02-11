@@ -236,9 +236,7 @@ import { createVue3Bridge } from '@micro-frontend-bridge/for-vue'
 
 # 简介
 
-这是一个新的微前端解决方案, 方法是通过高阶函数去实现不同前端技术栈项目的衔接, [**核心原理**](#核心原理)
-
-现在有很多微前端方案,为什么要用这种方案? 先来总结一下目前主流的几种方法:
+这是一个新的微前端解决方案, 现在有很多微前端方案,为什么要用这种方案? 先来总结一下目前主流的几种方法:
 
 **1. 基于 Webpack 5 的 Module Federation**
 
@@ -285,6 +283,8 @@ import { createVue3Bridge } from '@micro-frontend-bridge/for-vue'
 4. 对以 iframe 和 Web Components 为代表的技术实现方案不满意,希望速度更优的
 
 5. 目前仅针对 react 和 vue 技术栈的互通
+
+[**核心原理**](#核心原理)
 
 ## 可能存在的缺点
 

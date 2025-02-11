@@ -19,7 +19,10 @@
     "./for-react": "./core/for-react/index.js"
   },
   "files": [
-    "core"
+    "core",
+    "examples",
+    "README.md",
+    "README_EN.md"
   ],
   "scripts": {
     "start": "pnpm i && npm run build",
@@ -31,7 +34,7 @@
     "e3": "npm run build --prefix ./examples/vue2-usage-vue3-react-bridge",
     "e4": "npm run build --prefix ./examples/vue3-usage-react-bridge"
   },
-  "dependencies": {
+  "devDependencies": {
     "concurrently": "^8.2.1",
     "vite": "^6.1.0",
     "pnpm": "9.5.0"
@@ -42,11 +45,11 @@
     "react",
     "vue"
   ],
-  "author": "",
+  "author": "hanyaxxx",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/micro-frontend-bridge.git"
+    "url": "https://github.com/hanyaxxx/micro-frontend-bridge"
   },
   "publishConfig": {
     "access": "public"
